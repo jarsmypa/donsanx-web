@@ -1,0 +1,215 @@
+{
+    "name": "Family Dashboard Bot",
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "telegram-webhook",
+                "options": {}
+            },
+            "name": "Webhook",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [
+                250,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "string": [
+                        {
+                            "value1": "={{ $json.body.message.text }}",
+                            "operation": "regex",
+                            "value2": "(?i)^(comprar|lista|compra)\\s.+"
+                        }
+                    ]
+                }
+            },
+            "name": "Switch Type",
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 1,
+            "position": [
+                500,
+                300
+            ]
+        },
+        {
+            "parameters": {
+                "tableId": "shopping_items",
+                "fieldsUi": {
+                    "fieldValues": [
+                        {
+                            "fieldId": "text",
+                            "fieldValue": "={{ $json.body.message.text.replace(/^(comprar|lista|compra)\\s+/i, '') }}"
+                        }
+                    ]
+                }
+            },
+            "name": "Add Shopping Item",
+            "type": "n8n-nodes-base.supabase",
+            "typeVersion": 1,
+            "position": [
+                800,
+                200
+            ],
+            "credentials": {
+                "supabaseApi": {
+                    "id": "YOUR_SUPABASE_CREDENTIAL_ID",
+                    "name": "Supabase Account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "chatId": "={{ $node[\"Webhook\"].json.body.message.chat.id }}",
+                "text": "={{ '✅ Agregado a la lista: ' + $json.text }}",
+                "additionalFields": {}
+            },
+            "name": "Reply Shopping",
+            "type": "n8n-nodes-base.telegram",
+            "typeVersion": 1,
+            "position": [
+                1000,
+                200
+            ],
+            "credentials": {
+                "telegramApi": {
+                    "id": "YOUR_TELEGRAM_CREDENTIAL_ID",
+                    "name": "Telegram Account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "jsCode": "const text = $json.body.message.text.replace(/^(tarea|agenda|agendar)\\s*:?\\s*/i, '');\nconst parts = text.split('/');\nconst taskText = parts[0].trim();\nlet taskDate = new Date();\n\nif (parts.length > 1) {\n  const dateStr = parts[1].trim().toLowerCase();\n  if (dateStr === 'mañana' || dateStr === 'manana') {\n    taskDate.setDate(taskDate.getDate() + 1);\n  } else if (dateStr === 'pasado mañana') {\n    taskDate.setDate(taskDate.getDate() + 2);\n  } else {\n    // Try to parse YYYY-MM-DD or other formats\n    const parsed = new Date(dateStr);\n    if (!isNaN(parsed)) taskDate = parsed;\n  }\n}\n\nreturn {\n  text: taskText,\n  date: taskDate.toISOString()\n};"
+            },
+            "name": "Parse Task Simple",
+            "type": "n8n-nodes-base.code",
+            "typeVersion": 1,
+            "position": [
+                750,
+                450
+            ]
+        },
+        {
+            "parameters": {
+                "tableId": "tasks",
+                "fieldsUi": {
+                    "fieldValues": [
+                        {
+                            "fieldId": "text",
+                            "fieldValue": "={{ $json.text }}"
+                        },
+                        {
+                            "fieldId": "date",
+                            "fieldValue": "={{ $json.date }}"
+                        },
+                        {
+                            "fieldId": "created_by",
+                            "fieldValue": "={{ $node[\"Webhook\"].json.body.message.from.first_name }}"
+                        }
+                    ]
+                }
+            },
+            "name": "Add Task",
+            "type": "n8n-nodes-base.supabase",
+            "typeVersion": 1,
+            "position": [
+                1000,
+                450
+            ],
+            "credentials": {
+                "supabaseApi": {
+                    "id": "YOUR_SUPABASE_CREDENTIAL_ID",
+                    "name": "Supabase Account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "chatId": "={{ $node[\"Webhook\"].json.body.message.chat.id }}",
+                "text": "={{ '📅 Agenda: ' + $node[\"Parse Task Simple\"].json.text }}",
+                "additionalFields": {}
+            },
+            "name": "Reply Task",
+            "type": "n8n-nodes-base.telegram",
+            "typeVersion": 1,
+            "position": [
+                1200,
+                450
+            ],
+            "credentials": {
+                "telegramApi": {
+                    "id": "YOUR_TELEGRAM_CREDENTIAL_ID",
+                    "name": "Telegram Account"
+                }
+            }
+        }
+    ],
+    "connections": {
+        "Webhook": {
+            "main": [
+                [
+                    {
+                        "node": "Switch Type",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Switch Type": {
+            "main": [
+                [
+                    {
+                        "node": "Add Shopping Item",
+                        "type": "main",
+                        "index": 0
+                    }
+                ],
+                [
+                    {
+                        "node": "Parse Task Simple",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Add Shopping Item": {
+            "main": [
+                [
+                    {
+                        "node": "Reply Shopping",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Parse Task Simple": {
+            "main": [
+                [
+                    {
+                        "node": "Add Task",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Add Task": {
+            "main": [
+                [
+                    {
+                        "node": "Reply Task",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}

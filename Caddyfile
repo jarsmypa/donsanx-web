@@ -1,0 +1,57 @@
+# Frontend (La Web Principal)
+donsanx.me {
+    # Apunta a la carpeta "dist" después del build
+    root * "./DONSANX WEB/dist"
+    
+    # Comprime los archivos para que cargue rápido
+    encode gzip
+    
+    # Headers de Seguridad
+    header {
+        # Evita clickjacking
+        X-Frame-Options "SAMEORIGIN"
+        # Protege contra MIME-type sniffing
+        X-Content-Type-Options "nosniff"
+        # Habilita protección XSS del navegador
+        X-XSS-Protection "1; mode=block"
+        # Content Security Policy
+        Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.sanity.io; style-src 'self' 'unsafe-inline'; img-src 'self' data: https: blob:; font-src 'self' data:; connect-src 'self' https://api.sanity.io https://api.stripe.com; frame-src 'self'"
+        # Referrer Policy
+        Referrer-Policy "strict-origin-when-cross-origin"
+        # Permissions Policy
+        Permissions-Policy "geolocation=(), microphone=(), camera=()"
+        # Habilita HTTPS
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+    }
+
+    # Sirve archivos estáticos
+    file_server
+
+    # Si no encuentra el archivo (SPA), manda a index.html
+    try_files {path} /index.html
+}
+
+# Editor (Sanity Studio)
+# Opción A: Subdominio (Recomendado) -> Tienes que crear el registro A en tu DNS apuntando a la misma IP
+admin.donsanx.me {
+    root * "./studio/dist"
+    encode gzip
+    file_server
+    try_files {path} /index.html
+}
+
+# Opción B: Si prefieres donsanx.me/studio (Más complejo de configurar con Vite, mejor usa subdominio)
+
+# N8N Automation
+# N8N Automation
+bot.donsanx.me {
+    reverse_proxy localhost:5678
+}
+
+# Family Dashboard
+fam.donsanx.me {
+    root * "./fam-dashboard/dist"
+    encode gzip
+    file_server
+    try_files {path} /index.html
+}

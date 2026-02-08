@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-[#050505] antialiased text-neutral-100;
+  }
+
+  ::selection {
+    @apply bg-orange-500 text-white;
+  }
+}
+
+@layer utilities {
+  .text-stroke-white {
+    -webkit-text-stroke: 1px white;
+    color: transparent;
+  }
+}
