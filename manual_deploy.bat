@@ -16,6 +16,7 @@ echo 3. Configurando GitHub y Sincronizando...
 
 rem Intentamos bajar cambios remotos sin borrar lo local
 echo    (Bajando historia remota para evitar errores...)
+if exist "DONSANX WEB\.env.example" del "DONSANX WEB\.env.example"
 "C:\Program Files\Git\bin\git.exe" pull origin main --allow-unrelated-histories --no-edit -X ours
 
 echo 4. Agregando y Guardando cambios...
