@@ -46,11 +46,13 @@ const Login = ({ onLogin }) => {
 
     const handlePinChange = (e) => {
         const value = e.target.value;
-        if (value.length <= 4 && /^\d*$/.test(value)) {
+        const requiredLength = selectedUser.pin.length;
+
+        if (value.length <= requiredLength && /^\d*$/.test(value)) {
             setPin(value);
             setError('');
 
-            if (value.length === 4) {
+            if (value.length === requiredLength) {
                 handleLogin(value);
             }
         }
@@ -131,7 +133,7 @@ const Login = ({ onLogin }) => {
                                 value={pin}
                                 onChange={handlePinChange}
                                 className="w-full bg-transparent text-center text-4xl font-bold text-white tracking-[0.5em] focus:outline-none mb-2 placeholder-neutral-800"
-                                placeholder="••••"
+                                placeholder={"•".repeat(selectedUser.pin.length)}
                                 autoFocus
                             />
                             {error && (
