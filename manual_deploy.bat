@@ -10,15 +10,17 @@ echo 2. Eliminando bloqueos...
 if exist .git\index.lock del .git\index.lock
 if exist .git\COMMIT_EDITMSG del .git\COMMIT_EDITMSG
 
-echo 3. Agregando archivos...
-"C:\Program Files\Git\bin\git.exe" add -A
+echo 3. Configurando GitHub...
+"C:\Program Files\Git\bin\git.exe" remote remove origin >nul 2>&1
+"C:\Program Files\Git\bin\git.exe" remote add origin https://github.com/jarsmypa/donsanx-web.git
 
-echo 4. Guardando cambios (Commit)...
+echo 4. Agregando y Guardando cambios...
+"C:\Program Files\Git\bin\git.exe" add -A
 "C:\Program Files\Git\bin\git.exe" commit -m "Deploy manual final"
 
-echo 5. Subiendo a GitHub (Push)...
-echo    (Si te pide login, una ventana se abrira o te pedira en texto)
-"C:\Program Files\Git\bin\git.exe" push origin main
+echo 5. Subiendo a GitHub...
+echo    (Si pide login, sigue las instrucciones en la ventana emergente)
+"C:\Program Files\Git\bin\git.exe" push -u origin main
 
 echo.
 echo ==========================================
