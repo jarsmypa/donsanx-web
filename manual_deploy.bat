@@ -14,18 +14,16 @@ echo 3. Configurando GitHub y Sincronizando...
 "C:\Program Files\Git\bin\git.exe" remote remove origin >nul 2>&1
 "C:\Program Files\Git\bin\git.exe" remote add origin https://jarsmypa@github.com/jarsmypa/donsanx-web.git
 
-rem Intentamos bajar cambios remotos sin borrar lo local
-echo    (Bajando historia remota para evitar errores...)
-if exist "DONSANX WEB\.env.example" del "DONSANX WEB\.env.example"
-"C:\Program Files\Git\bin\git.exe" pull origin main --allow-unrelated-histories --no-edit -X ours
+rem Saltamos el pull problematico y forzamos la subida
+echo    (Forzando sincronizacion con la nube...)
 
 echo 4. Agregando y Guardando cambios...
 "C:\Program Files\Git\bin\git.exe" add -A
-"C:\Program Files\Git\bin\git.exe" commit -m "Deploy manual final fix credentials"
+"C:\Program Files\Git\bin\git.exe" commit -m "Deploy manual final force"
 
-echo 5. Subiendo a GitHub...
-echo    IMPORTANTE: Si te pide contrasena, usa tu Personal Access Token (o password si te deja).
-"C:\Program Files\Git\bin\git.exe" push -u origin main
+echo 5. Subiendo a GitHub (FORZADO)...
+echo    Atencion: Esto sobreescribira la historia en GitHub con tu version local.
+"C:\Program Files\Git\bin\git.exe" push -u origin main --force
 
 echo.
 echo ==========================================
