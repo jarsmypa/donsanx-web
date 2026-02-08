@@ -14,8 +14,8 @@ echo 3. Configurando GitHub y Sincronizando...
 "C:\Program Files\Git\bin\git.exe" remote remove origin >nul 2>&1
 "C:\Program Files\Git\bin\git.exe" remote add origin https://jarsmypa@github.com/jarsmypa/donsanx-web.git
 
-rem Saltamos el pull problematico y forzamos la subida
-echo    (Forzando sincronizacion con la nube...)
+echo    (Asegurando que la carpeta dist se suba si o si...)
+if exist "fam-dashboard\dist" "C:\Program Files\Git\bin\git.exe" add -f "fam-dashboard\dist"
 
 echo 4. Agregando y Guardando cambios...
 "C:\Program Files\Git\bin\git.exe" add -A
