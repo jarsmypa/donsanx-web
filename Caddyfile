@@ -50,7 +50,7 @@ bot.donsanx.me {
 
 # Family Dashboard
 fam.donsanx.me {
-    root * "./fam-dashboard/dist"
+    root * /var/www/donsanx-web/fam-dashboard/dist
     encode gzip
     file_server
     try_files {path} /index.html
