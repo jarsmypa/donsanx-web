@@ -1,7 +1,7 @@
 # Frontend (La Web Principal)
 donsanx.me {
     # Apunta a la carpeta "dist" después del build
-    root * "./DONSANX WEB/dist"
+    root * /var/www/donsanx-web/DONSANX WEB/dist
     
     # Comprime los archivos para que cargue rápido
     encode gzip
@@ -34,7 +34,7 @@ donsanx.me {
 # Editor (Sanity Studio)
 # Opción A: Subdominio (Recomendado) -> Tienes que crear el registro A en tu DNS apuntando a la misma IP
 admin.donsanx.me {
-    root * "./studio/dist"
+    root * /var/www/donsanx-web/studio/dist
     encode gzip
     file_server
     try_files {path} /index.html
