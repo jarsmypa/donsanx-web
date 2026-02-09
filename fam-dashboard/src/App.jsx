@@ -22,7 +22,7 @@ function App() {
 
     // Auth still local for now to keep it simple, or could migrate to Supabase Auth later
     const [isAuthenticated, setIsAuthenticated] = useLocalStorage('fam_dashboard_auth', false);
-    const [lastRecurringGenDate, setLastRecurringGenDate] = useLocalStorage('fam_dashboard_last_gen', null);
+    // const [lastRecurringGenDate, setLastRecurringGenDate] = useLocalStorage('fam_dashboard_last_gen', null); // Deprecated
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isRecurringModalOpen, setIsRecurringModalOpen] = useState(false);
@@ -30,33 +30,36 @@ function App() {
 
     // Recurring Tasks Generation Logic
     useEffect(() => {
-        const todayStr = startOfDay(new Date()).toISOString();
-
-        // If we haven't generated for today yet
-        if (lastRecurringGenDate !== todayStr && recurringTasks.length > 0) {
-            const todayDayOfWeek = getDay(new Date()); // 0 = Sunday, etc.
+        if (recurringTasks.length > 0 && tasks.length >= 0) { // Ensure tasks are loaded (or empty)
+            const dayOfWeek = getDay(selectedDate);
 
             recurringTasks.forEach(recTask => {
                 let shouldAdd = false;
                 if (recTask.frequency === 'daily') {
                     shouldAdd = true;
-                } else if (recTask.frequency === 'weekly' && recTask.days.includes(todayDayOfWeek)) {
+                } else if (recTask.frequency === 'weekly' && recTask.days.includes(dayOfWeek)) {
                     shouldAdd = true;
                 }
 
                 if (shouldAdd) {
-                    // Check if already exists to prevent duplicates (rudimentary check by text/date)
-                    // With Supabase we could do this locally or rely on DB constraints, 
-                    // but since 'tasks' filters by date, we might not see all to check.
-                    // For now, trusting the 'lastRecurringGenDate' is enough for this session.
-                    addTask(recTask.text, new Date(), true);
+                    // Check if already exists to prevent duplicates
+                    // We check if there is ANY task with same text on this date
+                    // This prevents re-adding if user completed it (assuming completed task still exists on date)
+                    const exists = tasks.some(t =>
+                        t.text === recTask.text &&
+                        // Check date match
+                        t.date &&
+                        isSameDay(parseISO(t.date), selectedDate)
+                    );
+
+                    if (!exists) {
+                        // Add it for the selected date
+                        addTask(recTask.text, selectedDate, true);
+                    }
                 }
             });
-
-            // Update last gen date so we don't do it again today
-            setLastRecurringGenDate(todayStr);
         }
-    }, [recurringTasks, lastRecurringGenDate, setLastRecurringGenDate]); // Removed addTask from dep array to avoid loops, though it should be stable
+    }, [selectedDate, recurringTasks, tasks]); // Re-run when date changes or tasks update
 
     // Rollover Logic: Move past incomplete tasks to today
     useEffect(() => {
