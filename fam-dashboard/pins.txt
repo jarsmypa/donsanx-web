@@ -1,4 +1,0 @@
---- LISTA DE USUARIOS Y PINES ---
-Usuario: Junior | PIN: 754585
-Usuario: Tamara | PIN: 754585
----------------------------------
